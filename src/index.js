@@ -6,11 +6,28 @@ server.use(express.json());
 
 const projects = [];
 
+server.use((request, repsonse, next) => {
+    console.log(`Método: ${request.method}`)
+    next();
+})
+
+function idExist (request, response, next) {
+    const { id } = request.params;
+    const num = projects.find(item => item.id == id )
+    
+    
+    if (!num) {
+        return response.status(400).json({ error: 'Does not exist this ID'})
+    }
+
+    return next();
+}
+
 server.get('/projects', (request, response) => {
     return response.json(projects)
 })
 
-server.get('/projects/:id', (request, response) => {
+server.get('/projects/:id', idExist, (request, response) => {
     const { id } = request.params;
 
     const num = projects.find(item => item.id == id )
@@ -33,7 +50,7 @@ server.post('/projects', (request, response) => {
     return response.json(projects)
 })
 
-server.post('/projects/:id/tasks', (request, response) => {
+server.post('/projects/:id/tasks', idExist, (request, response) => {
     const { id } = request.params
     const { task } = request.body;
 
@@ -50,7 +67,7 @@ server.post('/projects/:id/tasks', (request, response) => {
 
 });
 
-server.put('/projects/:id', (request, response) => {
+server.put('/projects/:id', idExist, (request, response) => {
     const { id } = request.params;
     const { title } = request.body;
 
@@ -62,7 +79,7 @@ server.put('/projects/:id', (request, response) => {
 
 });
 
-server.delete('/projects/:id', (request, response) => {
+server.delete('/projects/:id', idExist, (request, response) => {
     const { id } = request.params;
 
     const num = projects.filter(item => item.id == id);
